@@ -1,0 +1,5 @@
+﻿Logging:
+    LogLevel:
+        Default: Debug
+        Microsoft.AspNetCore: Warning
+AllowedHosts: "*"

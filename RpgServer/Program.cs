@@ -1,4 +1,8 @@
+using Microsoft.Extensions.Configuration.Yaml;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddYamlFile("AppSettings.yaml");
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
