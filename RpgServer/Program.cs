@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.Yaml;
 using RpgServer.Configs;
-using RpgServer.Interfaces;
+using RpgServer.DbContexts;
+using RpgServer.Extensions;
+using RpgServer.Repositories;
 using RpgServer.Serializers;
 using RpgServer.Services;
 
@@ -13,10 +16,15 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddDistributedCacheUri(builder.Configuration.GetConnectionString("Cache")?? "mem://Cache");
+builder.Services.AddDbContextUri<AuthDatabase>(builder.Configuration.GetConnectionString("AuthDb")?? "mem://AuthDb");
+builder.Services.AddAutoMapper(typeof(RpgServer.AutoMapperProfile));
+
 builder.Services.AddSingleton<ICacheSerializer, JsonCacheSerializer>();
 builder.Services.AddSingleton<ContextConfig>();
 builder.Services.AddScoped<ContextService>();
+builder.Services.AddScoped<AuthRepository>();
 
 builder.Services.AddControllers();
 

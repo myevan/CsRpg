@@ -1,5 +1,4 @@
-﻿using RpgServer.Interfaces;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 namespace RpgServer.Serializers

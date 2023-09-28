@@ -1,4 +1,4 @@
-﻿namespace RpgServer.Interfaces
+﻿namespace RpgServer.Serializers
 {
     public interface ICacheSerializer
     {

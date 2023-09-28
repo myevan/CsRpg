@@ -3,3 +3,7 @@
         Default: Debug
         Microsoft.AspNetCore: Warning
 AllowedHosts: "*"
+ConnectionStrings:
+    Cache: memory://localhost
+    Cache2: redis://localhost:6379
+    AuthDb: memory://AuthDb
