@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RpgServer.Repositories;
 using RpgServer.Services;
+using System.Security.Principal;
 
 namespace RpgServer.Controllers
 {
@@ -41,20 +42,47 @@ namespace RpgServer.Controllers
         {
             _ctx.SetLogSub(11);
 
-            if (!_ctx.TryAuthorizeByIdfv(idfv))
+            var oldDevice = _repo.LoadDevice(idfv);
+            if (oldDevice == null) // 신규 디바이스라면
             {
+                // 신규 어카운트-디바이스-세션 생성
+                var newAccount = _repo.GenAccount(idfv);
+                var newDevice = _repo.GenDevice(idfv, newAccount.Id);
+                var newSession = _repo.GenSession(newAccount, newDevice);
+                _ctx.Authorize(newAccount, newDevice, newSession);
+
                 return new
                 {
-                    Msg = "OLD_ACCOUNT",
+                    Msg = "NEW_ACCOUNT",
                     Ctx = _ctx.Payload
                 };
             }
-
-            return new
+            else // 기존 디바이스라면
             {
-                Msg = "NEW_ACCOUNT",
-                Ctx = _ctx.Payload
-            };
+                // 기존 어카운트 불러옴
+                var oldAccount = _repo.LoadAccount(oldDevice.AccountId);
+                if (oldAccount == null) // 기존 어카운트가 없다면
+                {
+                    // TODO: 기존 어카운트 삭제?
+                    throw new Exception($"NOT_FOUND_ACCOUNT({oldDevice.AccountId}) IDFV({oldDevice.Idfv})");
+                }
+                else // 기존 어카운트가 있다면
+                {
+                    // 기존 세션 불러오기
+                    var oldSession = _repo.TouchSession(oldAccount, oldDevice);
+
+                    // 세션 아이디 리셋
+                    _repo.ResetSessionId(oldSession, oldAccount, oldDevice);
+
+                    _ctx.Authorize(oldAccount, oldDevice, oldSession);
+
+                    return new
+                    {
+                        Msg = "OLD_ACCOUNT",
+                        Ctx = _ctx.Payload
+                    };
+                }
+            }
         }
 
         private readonly ContextService _ctx;

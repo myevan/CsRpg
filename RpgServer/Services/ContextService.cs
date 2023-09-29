@@ -57,50 +57,15 @@ namespace RpgServer.Services
             return session.AccountId != 0;
         }
 
-        public bool TryAuthorizeByIdfv(string inIdfv)
+        public void Authorize(AccountModel account, DeviceModel device, SessionModel session)
         {
             _isUpdated = false;
 
-            var oldDevice = _authRepo.LoadDevice(inIdfv);
-            if (oldDevice == null) // 신규 디바이스라면
-            {
-                // 신규 어카운트-디바이스-세션 생성
-                var newAccount = _authRepo.GenAccount(inIdfv);
-                var newDevice = _authRepo.GenDevice(inIdfv, newAccount.Id);
-                var newSession = _authRepo.GenSession(newAccount, newDevice);
-                _slotSession.Set(newSession);
-                _slotAccount.Set(newAccount);
-                _slotDevice.Set(newDevice);
+            _slotAccount.Set(account);
+            _slotDevice.Set(device);
 
-                _slotSessionId.Set(newAccount.SessionId);
-
-                return true;
-            }
-            else // 기존 디바이스라면
-            {
-                // 기존 어카운트 불러옴
-                var oldAccount = _authRepo.LoadAccount(oldDevice.AccountId);
-                if (oldAccount == null) // 기존 어카운트가 없다면
-                {
-                    // TODO: 기존 어카운트 삭제?
-                    throw new Exception($"NOT_FOUND_ACCOUNT({oldDevice.AccountId}) IDFV({oldDevice.Idfv})");
-                }
-                else // 기존 어카운트가 있다면
-                {
-                    // 기존 세션 불러오기
-                    var oldSession = _authRepo.TouchSession(oldAccount, oldDevice);
-
-                    // 세션 아이디 리셋
-                    _authRepo.ResetSessionId(oldSession, oldAccount, oldDevice);
-
-                    _slotSession.Set(oldSession);
-                    _slotAccount.Set(oldAccount);
-                    _slotDevice.Set(oldDevice);
-
-                    _slotSessionId.Set(oldAccount.SessionId);
-                    return false;
-                }
-            }
+            _slotSession.Set(session);
+            _slotSessionId.Set(account.SessionId);
         }
 
         private string LoadRequestSessionId()
