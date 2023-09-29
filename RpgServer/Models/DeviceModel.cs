@@ -28,7 +28,7 @@ namespace RpgServer.Models
         public DateTime CreateTime { get; private set; } = DateTime.UtcNow;
 
         [MessagePack.IgnoreMember]
-
+        [System.Text.Json.Serialization.JsonIgnore]
         public DateTime UpdateTime { get; private set; } = DateTime.UtcNow;
     }
 }
