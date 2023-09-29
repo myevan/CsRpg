@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+ï»¿using Microsoft.AspNetCore.Mvc;
 using RpgServer.Repositories;
 using RpgServer.Services;
 using System.Security.Principal;
@@ -44,9 +44,9 @@ namespace RpgServer.Controllers
             _ctx.SetLogSub(11);
 
             var oldDevice = _repo.LoadDevice(idfv);
-            if (oldDevice == null) // ½Å±Ô µğ¹ÙÀÌ½º¶ó¸é
+            if (oldDevice == null) // ì‹ ê·œ ë””ë°”ì´ìŠ¤ë¼ë©´
             {
-                // ½Å±Ô ¾îÄ«¿îÆ®-µğ¹ÙÀÌ½º-¼¼¼Ç »ı¼º
+                // ì‹ ê·œ ì–´ì¹´ìš´íŠ¸-ë””ë°”ì´ìŠ¤-ì„¸ì…˜ ìƒì„±
                 var newAccount = _repo.GenAccount(idfv);
                 var newDevice = _repo.GenDevice(idfv, newAccount.Id);
                 var newSession = _repo.GenSession(newAccount, newDevice);
@@ -58,21 +58,21 @@ namespace RpgServer.Controllers
                     Ctx = _ctx.Payload
                 };
             }
-            else // ±âÁ¸ µğ¹ÙÀÌ½º¶ó¸é
+            else // ê¸°ì¡´ ë””ë°”ì´ìŠ¤ë¼ë©´
             {
-                // ±âÁ¸ ¾îÄ«¿îÆ® ºÒ·¯¿È
+                // ê¸°ì¡´ ì–´ì¹´ìš´íŠ¸ ë¶ˆëŸ¬ì˜´
                 var oldAccount = _repo.LoadAccount(oldDevice.AccountId);
-                if (oldAccount == null) // ±âÁ¸ ¾îÄ«¿îÆ®°¡ ¾ø´Ù¸é
+                if (oldAccount == null) // ê¸°ì¡´ ì–´ì¹´ìš´íŠ¸ê°€ ì—†ë‹¤ë©´
                 {
-                    // TODO: ±âÁ¸ ¾îÄ«¿îÆ® »èÁ¦?
+                    // TODO: ê¸°ì¡´ ì–´ì¹´ìš´íŠ¸ ì‚­ì œ?
                     throw new Exception($"NOT_FOUND_ACCOUNT({oldDevice.AccountId}) IDFV({oldDevice.Idfv})");
                 }
-                else // ±âÁ¸ ¾îÄ«¿îÆ®°¡ ÀÖ´Ù¸é
+                else // ê¸°ì¡´ ì–´ì¹´ìš´íŠ¸ê°€ ìˆë‹¤ë©´
                 {
-                    // ±âÁ¸ ¼¼¼Ç ºÒ·¯¿À±â
+                    // ê¸°ì¡´ ì„¸ì…˜ ë¶ˆëŸ¬ì˜¤ê¸°
                     var oldSession = _repo.TouchSession(oldAccount, oldDevice);
 
-                    // ¼¼¼Ç ¾ÆÀÌµğ ¸®¼Â
+                    // ì„¸ì…˜ ì•„ì´ë”” ë¦¬ì…‹
                     _repo.ResetSessionId(oldSession, oldAccount, oldDevice);
 
                     _ctx.Authorize(oldAccount, oldDevice, oldSession);
