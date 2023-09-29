@@ -96,7 +96,7 @@ namespace RpgServer.Services
         /// 페이로드 업데이트
         /// </summary>
         /// <returns>페이로드</returns>
-        public Payload UpdatePayload()
+        private Payload UpdatePayload()
         {
             if (_isUpdated) { return _payload; }
 
