@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RpgServer.DbContexts;
+using RpgServer.Serializers;
 
 namespace RpgServer.Extensions
 {
@@ -8,6 +9,17 @@ namespace RpgServer.Extensions
         public static bool AddDistributedCacheUri(this IServiceCollection services, string uriStr)
         {
             var uri = new Uri(uriStr);
+            if (uri.LocalPath.EndsWith(".msgpack"))
+            {
+                DistributedCacheExtension.SetPrefix("m.");
+                services.AddSingleton<ICacheSerializer, MsgPackCacheSerializer>();
+            }
+            else
+            {
+                DistributedCacheExtension.SetPrefix("j.");
+                services.AddSingleton<ICacheSerializer, JsonCacheSerializer>();
+            }
+
             switch (uri.Scheme)
             {
                 case "redis":

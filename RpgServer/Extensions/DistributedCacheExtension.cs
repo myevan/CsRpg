@@ -9,22 +9,25 @@ namespace RpgServer.Extensions
         {
             if (string.IsNullOrEmpty(inIdfv)) { return string.Empty; }
 
-            return $"{FourccStr.Idfv}:{inIdfv}";
+            return $"{_prefix}{FourccStr.Idfv}:{inIdfv}";
         }
 
         public static string GenAccountKey(this IDistributedCache cache, ulong inAccountId)
         {
             if (inAccountId == 0) { return string.Empty; }
 
-            return $"{FourccStr.Account}:{inAccountId}";
+            return $"{_prefix}{FourccStr.Account}:{inAccountId}";
         }
 
-        public static string GenSessionKey(this IDistributedCache cache, string inSession)
+        public static string GenSessionKey(this IDistributedCache cache, string inSessionId)
         {
-            if (string.IsNullOrEmpty(inSession)) { return string.Empty; }
+            if (string.IsNullOrEmpty(inSessionId)) { return string.Empty; }
 
-            return $"{FourccStr.Session}:{inSession}";
+            return $"{_prefix}{FourccStr.Session}:{inSessionId}";
         }
 
+        public static void SetPrefix(string prefix) { _prefix = prefix; }
+
+        private static string _prefix = string.Empty;
     }
 }

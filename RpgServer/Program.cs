@@ -21,7 +21,6 @@ builder.Services.AddDistributedCacheUri(builder.Configuration.GetConnectionStrin
 builder.Services.AddDbContextUri<AuthDatabase>(builder.Configuration.GetConnectionString("AuthDb")?? "mem://AuthDb");
 builder.Services.AddAutoMapper(typeof(RpgServer.AutoMapperProfile));
 
-builder.Services.AddSingleton<ICacheSerializer, JsonCacheSerializer>();
 builder.Services.AddSingleton<ContextConfig>();
 builder.Services.AddScoped<ContextService>();
 builder.Services.AddScoped<AuthRepository>();
