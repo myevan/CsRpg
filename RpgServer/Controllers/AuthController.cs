@@ -32,13 +32,14 @@ namespace RpgServer.Controllers
 
             return new
             {
+                Msg = "AUTHORIZED",
                 Ctx = _ctx.Payload
             };
         }
 
-        [Route("/auth/sign-up")]
+        [Route("/auth")]
         [HttpPost]
-        public object SignUp(string idfv)
+        public object GenAuth(string idfv)
         {
             _ctx.SetLogSub(11);
 
@@ -53,7 +54,7 @@ namespace RpgServer.Controllers
 
                 return new
                 {
-                    Msg = "NEW_ACCOUNT",
+                    Msg = "NEW_DEVICE_ACCOUNT",
                     Ctx = _ctx.Payload
                 };
             }
@@ -78,7 +79,7 @@ namespace RpgServer.Controllers
 
                     return new
                     {
-                        Msg = "OLD_ACCOUNT",
+                        Msg = "FOUND_DEVICE_ACCOUNT",
                         Ctx = _ctx.Payload
                     };
                 }
