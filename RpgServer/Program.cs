@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration.Yaml;
 using RpgServer.Configs;
 using RpgServer.Databases;
 using RpgServer.Extensions;
+using RpgServer.Filters;
 using RpgServer.Repositories;
-using RpgServer.Serializers;
 using RpgServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +25,10 @@ builder.Services.AddSingleton<ContextConfig>();
 builder.Services.AddScoped<ContextService>();
 builder.Services.AddScoped<AuthRepository>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<AuthenticationFilter>();
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,6 +39,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RpgServer.Repositories;
 using RpgServer.Services;
 using System.Security.Principal;
 
 namespace RpgServer.Controllers
 {
-    
+    [AllowAnonymous]
     [ApiController]
     public class AuthController : Controller
     {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using RpgServer.Configs;
 using RpgServer.Databases;
@@ -6,7 +7,7 @@ using RpgServer.Services;
 
 namespace RpgServer.Controllers
 {
-    
+    [AllowAnonymous]
     [Route("/")]
     [ApiController]
     public class RootController : Controller
