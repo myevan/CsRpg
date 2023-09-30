@@ -1,15 +1,13 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using RpgServer.Configs;
 using RpgServer.Databases;
+using RpgServer.Extensions;
+using RpgServer.Models;
+using RpgServer.Serializers;
 
 namespace RpgServer.Repositories
 {
-    using Models;
-    using Extensions;
-    using System.Security.Principal;
-    using Microsoft.AspNetCore.Http;
-    using RpgServer.Serializers;
-
     public class AuthRepository
     {
         public AuthRepository(IDistributedCache cache, ICacheSerializer serializer, ContextConfig config, AuthDatabase authDb)
@@ -22,7 +20,7 @@ namespace RpgServer.Repositories
 
         public DeviceModel? LoadDevice(string inIdfv)
         {
-            string cacheKey = _cache.GenIdfvKey(inIdfv);
+            string cacheKey = _cache.GenDeviceKey(inIdfv);
             return LoadModel(cacheKey, inIdfv, _authDb.FindDevice, _config.DeviceCacheOpts);
         }
 
@@ -36,8 +34,7 @@ namespace RpgServer.Repositories
             _authDb.Add(newDevice);
             _authDb.SaveChanges();
 
-            string cacheKey = _cache.GenIdfvKey(inIdfv);
-            Cache(cacheKey, newDevice, _config.DeviceCacheOpts);
+            _cache.SetDevice(_serializer, newDevice, _config.DeviceCacheOpts);
 
             return newDevice;
         }
@@ -60,8 +57,7 @@ namespace RpgServer.Repositories
             _authDb.Add(newAccount);
             _authDb.SaveChanges();
 
-            string cacheKey = _cache.GenAccountKey(newAccount.Id);
-            Cache(cacheKey, newAccount, _config.AccountCacheOpts);
+            _cache.SetAccount(_serializer, newAccount, _config.AccountCacheOpts);
 
             return newAccount;
         }
@@ -104,19 +100,17 @@ namespace RpgServer.Repositories
             _authDb.Add(newSession);
             _authDb.SaveChanges();
 
-            string cacheKey = _cache.GenSessionKey(newSession.Id);
-            Cache(cacheKey, newSession, _config.SessionCacheOpts);
+            _cache.SetSession(_serializer, newSession, _config.SessionCacheOpts);
             return newSession;
         }
 
-        public void ResetSessionId(SessionModel inSession, AccountModel inAccount, DeviceModel inDevice)
+        public bool TryResetSessionId(SessionModel inSession, AccountModel inAccount, DeviceModel inDevice)
         {
             var newSessionId = GenSessionId();
             var oldSessionId = inSession.Id;
 
             // 세션 캐시 삭제
-            string oldSessionCacheKey = _cache.GenSessionKey(oldSessionId);
-            _cache.Remove(oldSessionCacheKey);
+            _cache.RemoveSession(oldSessionId);
 
             // 모델 갱신
             inSession.Id = newSessionId; // 세션 아이디 변경
@@ -126,15 +120,24 @@ namespace RpgServer.Repositories
             // 데이터 베이스 갱신
             _authDb.Update(inSession);
             _authDb.Update(inAccount);
-            _authDb.SaveChanges();
+            
+            try
+            {
+                _authDb.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException) // 데이터베이스 갱신 실패
+            {
+                // 어카운트 캐시 제거
+                _cache.RemoveAccount(inAccount.Id);
+                return false;
+            }
 
             // 어카운트 캐시 갱신
-            string cacheKey = _cache.GenAccountKey(inAccount.Id);
-            Cache(cacheKey, inAccount, _config.AccountCacheOpts);
+            _cache.SetAccount(_serializer, inAccount, _config.AccountCacheOpts);
 
-            // 세션 캐시 추가
-            string newSessionCacheKey = _cache.GenSessionKey(inSession.Id);
-            Cache(newSessionCacheKey, inSession, _config.SessionCacheOpts);
+            // 세션 캐시 갱신
+            _cache.SetSession(_serializer, inSession, _config.SessionCacheOpts);
+            return true;
         }
 
         private string GenSessionId()
@@ -159,14 +162,9 @@ namespace RpgServer.Repositories
             var dbModel = findModel(inModelId);
             if (dbModel == null) return default;
 
-            Cache(inCacheKey, dbModel, cacheOpts);
+            var dbModelBytes = _serializer.Dump(dbModel);
+            _cache.Set(inCacheKey, dbModelBytes, cacheOpts);
             return dbModel;
-        }
-
-        private void Cache<T>(string inCacheKey, T inModel, DistributedCacheEntryOptions cacheOpts)
-        {
-            var dbBytes = _serializer.Dump(inModel);
-            _cache.Set(inCacheKey, dbBytes, cacheOpts);
         }
 
         private readonly IDistributedCache _cache;

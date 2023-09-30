@@ -73,8 +73,17 @@ namespace RpgServer.Controllers
                     var oldSession = _repo.TouchSession(oldAccount, oldDevice);
 
                     // 세션 아이디 리셋
-                    _repo.ResetSessionId(oldSession, oldAccount, oldDevice);
+                    if (!_repo.TryResetSessionId(oldSession, oldAccount, oldDevice))
+                    {
+                        // 어카운트 세션 리셋 불가 (캐시-데이터베이스 동기화 불일치)
+                        return new
+                        {
+                            Msg = "NOT_RESET_ACCOUNT_SESSION",
+                            Ctx = _ctx.Payload
+                        };
+                    }
 
+                    // 컨텍스트 인증
                     _ctx.Authorize(oldAccount, oldDevice, oldSession);
 
                     return new
