@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.Yaml;
 using RpgServer.Configs;
-using RpgServer.DbContexts;
+using RpgServer.Databases;
 using RpgServer.Extensions;
 using RpgServer.Repositories;
 using RpgServer.Serializers;

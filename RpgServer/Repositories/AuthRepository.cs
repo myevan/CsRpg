@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using RpgServer.Configs;
-using RpgServer.DbContexts;
+using RpgServer.Databases;
 
 namespace RpgServer.Repositories
 {

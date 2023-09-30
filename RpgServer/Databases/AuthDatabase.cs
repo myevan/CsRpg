@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RpgServer.Models;
 
-namespace RpgServer.DbContexts
+namespace RpgServer.Databases
 {
     public class AuthDatabase : DbContext
     {
