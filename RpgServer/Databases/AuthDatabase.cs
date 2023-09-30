@@ -5,7 +5,7 @@ namespace RpgServer.Databases
 {
     public class AuthDatabase : DbContext
     {
-        public AuthDatabase(DbContextOptions<AuthDatabase> opts) : base(opts)
+        public AuthDatabase(DbContextOptions<AuthDatabase> options) : base(options)
         {
         }
 

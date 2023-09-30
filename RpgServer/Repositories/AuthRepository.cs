@@ -92,9 +92,9 @@ namespace RpgServer.Repositories
         {
             var newSession = new SessionModel()
             {
-                Id = inAccount.SessionId,
                 AccountId = inAccount.Id,
-                Idfv = inDevice.Idfv
+                Idfv = inDevice.Idfv,
+                Id = inAccount.SessionId
             };
 
             _authDb.Add(newSession);

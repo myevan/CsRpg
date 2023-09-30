@@ -65,7 +65,7 @@ namespace RpgServer.Controllers
                 if (oldAccount == null) // 기존 어카운트가 없다면
                 {
                     // TODO: 기존 어카운트 삭제?
-                    throw new Exception($"NOT_FOUND_ACCOUNT({oldDevice.AccountId}) IDFV({oldDevice.Idfv})");
+                    throw new Exception($"NOT_FOUND_ACCOUNT({oldDevice.AccountId}) DEVICE({oldDevice.Idfv})");
                 }
                 else // 기존 어카운트가 있다면
                 {
